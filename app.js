@@ -1,8 +1,24 @@
 const express = require('express')
+const birds = require('./birds')
+const logTime = require('./log-time')
+
 const app = express()
 const port = 3000
 
-let birds = require('./birds')
+
+// 5. Writing middleware
+    // https://expressjs.com/en/guide/writing-middleware.html
+const requestTime = (req, res, next) => {
+    req.requestTime = Date.now()
+    next()
+}
+app.use(requestTime)
+
+// Passing options
+app.use(logTime({format: "dddd, MMMM Do YYYY, h:mm:ss a"}))
+
+
+
 
 // 3. Serving static files
     // https://expressjs.com/en/starter/static-files.html
@@ -18,6 +34,8 @@ app.get('/goodbye', (req, res) => res.send('Goodbye world!'))                   
 app.post('/', (req, res) => res.send('Got a POST request'))                     // curl --request POST localhost:3000
 app.put('/user', (req, res) => res.send('Got a PUT request at /user'))          // curl -X PUT localhost:3000/user
 app.delete('/user', (req, res) => res.send('Got a DELETE request at /user'))    // curl -X DELETE localhost:3000/user
+
+
 
 // 4. Intermediate routing
     // https://expressjs.com/en/guide/routing.html
@@ -64,8 +82,8 @@ app.route('/book')
     .put((req, res) => res.send('Update the book'))                             // curl -X PUT localhost:3000/book
 
 // Importing routes
-app.use('/birds', birds)                                                        // curl localhost:3000/birds/about
-                                                                                // curl localhost:3000/birds
+app.use('/birds', birds)                                                        // curl localhost:3000/birds
+                                                                                // curl localhost:3000/birds/about
 
 /*
 *  1. App listens for requests to the specified port.
